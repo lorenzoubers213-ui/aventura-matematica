@@ -31,44 +31,49 @@ function finishLevel(){state.completed[`${grade}-${level}`]=true;state.xp+=50;st
 updateStats();renderGrades();show('home');
 if('serviceWorker'in navigator)navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister())).catch(()=>{});
 
-/* Modo oscuro: totalmente aislado. Si localStorage o el tema fallan, el resto de la navegación sigue funcionando. */
+/* Modo oscuro: usa captura para no depender de otros listeners y queda completamente aislado de Inicio. */
 (function(){
-  try{
+  const initTheme=()=>{
     const btn=document.getElementById('themeBtn');
     if(!btn)return;
-    const applyDark=dark=>{
+    const getDark=()=>document.documentElement.classList.contains('dark')||document.body.classList.contains('dark');
+    const apply=dark=>{
+      document.documentElement.classList.toggle('dark',!!dark);
       document.body.classList.toggle('dark',!!dark);
       btn.textContent=dark?'☀️ Claro':'🌙 Oscuro';
       btn.setAttribute('aria-pressed',dark?'true':'false');
     };
-    let saved='0';
-    try{saved=localStorage.getItem('aventuraTemaOscuro')||'0'}catch(_){saved='0'}
-    applyDark(saved==='1');
+    let dark=false;
+    try{dark=localStorage.getItem('aventuraTemaOscuro')==='1'}catch(_){dark=false}
+    apply(dark);
     btn.type='button';
-    btn.addEventListener('click',function(e){
-      e.preventDefault();
-      e.stopPropagation();
-      const dark=!document.body.classList.contains('dark');
-      try{localStorage.setItem('aventuraTemaOscuro',dark?'1':'0')}catch(_){ }
-      applyDark(dark);
-    });
-  }catch(_){ }
-})();
-
-/* Inicio: manejador independiente del modo oscuro. */
-(function(){
-  try{
     document.addEventListener('click',function(e){
-      const b=e.target&&e.target.closest?e.target.closest('button'):null;
-      if(!b)return;
-      const text=(b.textContent||'').trim().toLowerCase();
-      if(!text.includes('inicio'))return;
+      const target=e.target&&e.target.closest?e.target.closest('#themeBtn'):null;
+      if(target!==btn)return;
       e.preventDefault();
       e.stopImmediatePropagation();
-      document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
-      const home=document.getElementById('home');
-      if(home)home.classList.add('active');
-      window.scrollTo(0,0);
+      e.stopPropagation();
+      const next=!getDark();
+      try{localStorage.setItem('aventuraTemaOscuro',next?'1':'0')}catch(_){ }
+      apply(next);
     },true);
-  }catch(_){ }
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initTheme,{once:true});else initTheme();
+})();
+
+/* Inicio: completamente independiente del modo oscuro. */
+(function(){
+  const initHome=()=>document.addEventListener('click',function(e){
+    const b=e.target&&e.target.closest?e.target.closest('button'):null;
+    if(!b)return;
+    const text=(b.textContent||'').trim().toLowerCase();
+    if(!text.includes('inicio'))return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
+    const home=document.getElementById('home');
+    if(home)home.classList.add('active');
+    window.scrollTo(0,0);
+  },true);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initHome,{once:true});else initHome();
 })();
