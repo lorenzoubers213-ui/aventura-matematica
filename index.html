@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><meta name="theme-color" content="#111827"><link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="styles.css"><title>Aventura Matemática</title>
+</head>
+<body>
+<header><h1>🧮 Aventura Matemática</h1><div class="stats"><span>⭐ <b id="xp">0</b> XP</span><span>🪙 <b id="coins">0</b></span><span>🔥 <b id="streak">0</b></span></div></header>
+<main><section id="home"><h2>Elige tu grado</h2><p>El Nivel 1 de cada grado está disponible desde el inicio.</p><div id="grades" class="grid"></div></section><section id="levels" class="hidden"><button id="back">← Grados</button><h2 id="gradeTitle"></h2><div id="levelGrid" class="grid"></div></section><section id="quiz" class="hidden"><button id="backLevels">← Niveles</button><div class="quiz-card"><div class="progress"><span id="qProgress"></span></div><h2 id="question"></h2><div id="answers"></div><button id="next" disabled>Siguiente</button><p id="feedback"></p></div></section></main>
+<footer>App desarrollada por Ryan Salazar, Sara Mairena y Jostin Obregon</footer>
+<script src="app.js"></script></body></html>
