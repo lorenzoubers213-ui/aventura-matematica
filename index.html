@@ -1,10 +1,31 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><meta name="theme-color" content="#111827"><link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="styles.css"><title>Aventura Matemática</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#2563eb">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Aventura Matemática</title>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<header><h1>🧮 Aventura Matemática</h1><div class="stats"><span>⭐ <b id="xp">0</b> XP</span><span>🪙 <b id="coins">0</b></span><span>🔥 <b id="streak">0</b></span></div></header>
-<main><section id="home"><h2>Elige tu grado</h2><p>El Nivel 1 de cada grado está disponible desde el inicio.</p><div id="grades" class="grid"></div></section><section id="levels" class="hidden"><button id="back">← Grados</button><h2 id="gradeTitle"></h2><div id="levelGrid" class="grid"></div></section><section id="quiz" class="hidden"><button id="backLevels">← Niveles</button><div class="quiz-card"><div class="progress"><span id="qProgress"></span></div><h2 id="question"></h2><div id="answers"></div><button id="next" disabled>Siguiente</button><p id="feedback"></p></div></section></main>
-<footer>App desarrollada por Ryan Salazar, Sara Mairena y Jostin Obregon</footer>
-<script src="app.js"></script></body></html>
+<header>
+  <div>
+    <h1>🧮 Aventura Matemática</h1>
+    <p>Aprende, supera niveles y gana XP.</p>
+  </div>
+  <div class="stats">
+    <span>⭐ <b id="xp">0</b> XP</span>
+    <span>🪙 <b id="coins">0</b></span>
+    <span>🔥 <b id="streak">0</b></span>
+  </div>
+</header>
+<main id="app">
+<section id="home" class="screen active"><div class="hero"><h2>Elige tu grado</h2><p>El nivel 1 de cada grado está disponible desde el inicio.</p></div><div id="grades" class="grid"></div></section>
+<section id="levels" class="screen"><button class="back" onclick="showHome()">← Grados</button><div class="hero"><h2 id="gradeTitle"></h2><p>Completa cada nivel para desbloquear el siguiente.</p></div><div id="levelGrid" class="grid"></div></section>
+<section id="quiz" class="screen"><div class="quiz-head"><button class="back" onclick="showLevels()">← Niveles</button><span id="progress"></span></div><div class="card"><p id="topic" class="topic"></p><h2 id="question"></h2><div id="answers" class="answers"></div><p id="feedback"></p><button id="next" class="primary" hidden>Siguiente</button></div></section>
+<section id="credits" class="screen"><div class="card center"><h2>🏆 ¡Sigue aprendiendo!</h2><p>Has llegado al final de esta aventura matemática.</p></div></section>
+</main>
+<footer><div class="footer-nav"><button onclick="showHome()">📚 Grados</button><button onclick="showStats()">📊 Estadísticas</button><button onclick="showCredits()">👥 Créditos</button></div><p><strong>App desarrollada por Ryan Salazar, Sara Mairena y Jostin Obregon</strong></p></footer>
+<script src="app.js"></script>
+</body></html>
