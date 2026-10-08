@@ -30,3 +30,23 @@ function showLevels(){renderLevels();show('levels')}
 function finishLevel(){state.completed[`${grade}-${level}`]=true;state.xp+=50;state.coins+=10;save();if(level===10){alert(`👑 ¡JEFE FINAL DE ${grade}° GRADO!\n${BOSSES[grade-1]}\n\n¡Has derrotado al jefe completando el nivel 10!\nAciertos: ${score}/${QUESTIONS}\n+50 XP y +10 monedas`)}else{alert(`🏆 ¡Nivel ${level} completado!\nAciertos: ${score}/${QUESTIONS}\n+50 XP y +10 monedas`)}showLevels()}
 updateStats();renderGrades();show('home');
 if('serviceWorker'in navigator)navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister())).catch(()=>{});
+
+(function(){
+  const btn=document.getElementById('themeBtn');
+  if(!btn)return;
+  function applyDark(dark){
+    document.body.classList.toggle('dark',dark);
+    btn.textContent=dark?'☀️ Claro':'🌙 Oscuro';
+    btn.setAttribute('aria-pressed',dark?'true':'false');
+  }
+  let saved=localStorage.getItem('aventuraTemaOscuro');
+  applyDark(saved==='1');
+  btn.type='button';
+  btn.addEventListener('click',function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    const dark=!document.body.classList.contains('dark');
+    localStorage.setItem('aventuraTemaOscuro',dark?'1':'0');
+    applyDark(dark);
+  });
+})();
