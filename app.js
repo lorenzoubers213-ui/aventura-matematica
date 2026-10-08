@@ -31,38 +31,44 @@ function finishLevel(){state.completed[`${grade}-${level}`]=true;state.xp+=50;st
 updateStats();renderGrades();show('home');
 if('serviceWorker'in navigator)navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister())).catch(()=>{});
 
+/* Modo oscuro: totalmente aislado. Si localStorage o el tema fallan, el resto de la navegación sigue funcionando. */
 (function(){
-  const btn=document.getElementById('themeBtn');
-  if(!btn)return;
-  function applyDark(dark){
-    document.body.classList.toggle('dark',dark);
-    btn.textContent=dark?'☀️ Claro':'🌙 Oscuro';
-    btn.setAttribute('aria-pressed',dark?'true':'false');
-  }
-  let saved=localStorage.getItem('aventuraTemaOscuro');
-  applyDark(saved==='1');
-  btn.type='button';
-  btn.addEventListener('click',function(e){
-    e.preventDefault();
-    e.stopPropagation();
-    const dark=!document.body.classList.contains('dark');
-    localStorage.setItem('aventuraTemaOscuro',dark?'1':'0');
-    applyDark(dark);
-  });
+  try{
+    const btn=document.getElementById('themeBtn');
+    if(!btn)return;
+    const applyDark=dark=>{
+      document.body.classList.toggle('dark',!!dark);
+      btn.textContent=dark?'☀️ Claro':'🌙 Oscuro';
+      btn.setAttribute('aria-pressed',dark?'true':'false');
+    };
+    let saved='0';
+    try{saved=localStorage.getItem('aventuraTemaOscuro')||'0'}catch(_){saved='0'}
+    applyDark(saved==='1');
+    btn.type='button';
+    btn.addEventListener('click',function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      const dark=!document.body.classList.contains('dark');
+      try{localStorage.setItem('aventuraTemaOscuro',dark?'1':'0')}catch(_){ }
+      applyDark(dark);
+    });
+  }catch(_){ }
 })();
 
+/* Inicio: manejador independiente del modo oscuro. */
 (function(){
-  document.addEventListener('click',function(e){
-    const b=e.target.closest && e.target.closest('button');
-    if(!b)return;
-    const text=(b.textContent||'').trim().toLowerCase();
-    if(text.includes('inicio')){
+  try{
+    document.addEventListener('click',function(e){
+      const b=e.target&&e.target.closest?e.target.closest('button'):null;
+      if(!b)return;
+      const text=(b.textContent||'').trim().toLowerCase();
+      if(!text.includes('inicio'))return;
       e.preventDefault();
       e.stopImmediatePropagation();
       document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
       const home=document.getElementById('home');
       if(home)home.classList.add('active');
       window.scrollTo(0,0);
-    }
-  },true);
+    },true);
+  }catch(_){ }
 })();
