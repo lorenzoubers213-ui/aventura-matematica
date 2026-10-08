@@ -50,3 +50,19 @@ if('serviceWorker'in navigator)navigator.serviceWorker.getRegistrations().then(r
     applyDark(dark);
   });
 })();
+
+(function(){
+  document.addEventListener('click',function(e){
+    const b=e.target.closest && e.target.closest('button');
+    if(!b)return;
+    const text=(b.textContent||'').trim().toLowerCase();
+    if(text.includes('inicio')){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
+      const home=document.getElementById('home');
+      if(home)home.classList.add('active');
+      window.scrollTo(0,0);
+    }
+  },true);
+})();
