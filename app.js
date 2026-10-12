@@ -31,7 +31,7 @@ function finishLevel(){state.completed[`${grade}-${level}`]=true;state.xp+=50;st
 updateStats();renderGrades();show('home');
 if('serviceWorker'in navigator)navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister())).catch(()=>{});
 
-/* Modo oscuro: usa captura para no depender de otros listeners y queda completamente aislado de Inicio. */
+/* Modo oscuro: independiente de la navegación. */
 (function(){
   const initTheme=()=>{
     const btn=document.getElementById('themeBtn');
@@ -43,37 +43,55 @@ if('serviceWorker'in navigator)navigator.serviceWorker.getRegistrations().then(r
       btn.textContent=dark?'☀️ Claro':'🌙 Oscuro';
       btn.setAttribute('aria-pressed',dark?'true':'false');
     };
-    let dark=false;
-    try{dark=localStorage.getItem('aventuraTemaOscuro')==='1'}catch(_){dark=false}
-    apply(dark);
-    btn.type='button';
-    document.addEventListener('click',function(e){
-      const target=e.target&&e.target.closest?e.target.closest('#themeBtn'):null;
-      if(target!==btn)return;
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      e.stopPropagation();
-      const next=!getDark();
-      try{localStorage.setItem('aventuraTemaOscuro',next?'1':'0')}catch(_){ }
-      apply(next);
-    },true);
+    let dark=false;try{dark=localStorage.getItem('aventuraTemaOscuro')==='1'}catch(_){dark=false}
+    apply(dark);btn.type='button';
+    document.addEventListener('click',function(e){const target=e.target&&e.target.closest?e.target.closest('#themeBtn'):null;if(target!==btn)return;e.preventDefault();e.stopImmediatePropagation();e.stopPropagation();const next=!getDark();try{localStorage.setItem('aventuraTemaOscuro',next?'1':'0')}catch(_){}apply(next)},true);
   };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initTheme,{once:true});else initTheme();
 })();
 
-/* Inicio: completamente independiente del modo oscuro. */
+/* Navegación robusta: Inicio y todos los botones de volver funcionan por separado. */
 (function(){
-  const initHome=()=>document.addEventListener('click',function(e){
-    const b=e.target&&e.target.closest?e.target.closest('button'):null;
-    if(!b)return;
-    const text=(b.textContent||'').trim().toLowerCase();
-    if(!text.includes('inicio'))return;
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
-    const home=document.getElementById('home');
-    if(home)home.classList.add('active');
-    window.scrollTo(0,0);
-  },true);
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initHome,{once:true});else initHome();
+  const parents={
+    explore:'home',
+    exploreGrades:'explore',
+    exploreClasses:'exploreGrades',
+    exploreDifficulty:'exploreClasses',
+    exploreLesson:'exploreDifficulty',
+    quickChallenges:'explore',
+    quickGame:'quickChallenges',
+    mental:'explore',
+    mentalGame:'mental',
+    levels:'home',
+    quiz:'levels',
+    credits:'home',
+    challengeScreen:'home',
+    minigameScreen:'home',
+    challenge:'home',
+    minigames:'home'
+  };
+  const go=(id)=>{const s=document.getElementById(id);if(!s)return false;document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));s.classList.add('active');window.scrollTo(0,0);return true};
+  const home=()=>{try{if(typeof renderGrades==='function')renderGrades()}catch(_){};go('home')};
+  const back=()=>{
+    const active=document.querySelector('.screen.active');
+    if(!active){home();return}
+    const target=parents[active.id];
+    if(target&&go(target))return;
+    home();
+  };
+  const init=()=>{
+    document.addEventListener('click',function(e){
+      const b=e.target&&e.target.closest?e.target.closest('button'):null;
+      if(!b)return;
+      const text=(b.textContent||'').replace(/←/g,'').trim().toLowerCase();
+      const isTheme=b.id==='themeBtn';
+      if(isTheme)return;
+      const isHome=text==='inicio'||text.includes('inicio');
+      const isBack=b.classList.contains('back')||text==='volver'||text.startsWith('volver')||text==='explorar'||text==='grados'||text==='grados de explorar'||text==='clases'||text==='dificultades';
+      if(!isHome&&!isBack)return;
+      e.preventDefault();e.stopImmediatePropagation();e.stopPropagation();
+      if(isHome)home();else back();
+    },true);
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
