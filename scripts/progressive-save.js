@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-var KEY='aventuraMatematica',BACKUP='aventuraMatematica_progress_backup',nativeSet=Storage.prototype.setItem,nativeRemove=Storage.prototype.removeItem,lastSave=0,badge=null;
+var KEY='aventuraMatematica',BACKUP='aventuraMatematica_progress_backup',EXTRA='aventuraMatematica_expansion_v1',EXTRA_BACKUP='aventuraMatematica_expansion_backup_v1',nativeSet=Storage.prototype.setItem,nativeRemove=Storage.prototype.removeItem,lastSave=0,badge=null;
 function parse(raw){try{var v=JSON.parse(raw);return v&&typeof v==='object'&&!Array.isArray(v)?v:null}catch(e){return null}}
 function compact(v){
  var out={},keys=['xp','coins','streak','name','correct','total','materials','completed','bosses','world','questionHistory'];
@@ -26,6 +26,8 @@ function backup(v){
  }catch(e){status(false)}
 }
 function current(){return parse(nativeGet(KEY))}
+function backupExtra(raw){try{var data=parse(raw);if(data)nativeSet.call(localStorage,EXTRA_BACKUP,JSON.stringify({version:1,savedAt:Date.now(),data:data}))}catch(e){}}
+function currentExtra(){return parse(nativeGet(EXTRA))}
 var nativeGet=Storage.prototype.getItem;
 try{
  var main=parse(nativeGet.call(localStorage,KEY));
@@ -35,6 +37,9 @@ try{
   main=saved.data;
  }
  if(main)backup(main);
+ var extra=parse(nativeGet.call(localStorage,EXTRA)),extraSaved=parse(nativeGet.call(localStorage,EXTRA_BACKUP));
+ if(!extra&&extraSaved&&extraSaved.data&&typeof extraSaved.data==='object'){nativeSet.call(localStorage,EXTRA,JSON.stringify(extraSaved.data));extra=extraSaved.data}
+ if(extra)backupExtra(JSON.stringify(extra));
 }catch(e){}
 Storage.prototype.setItem=function(key,value){
  nativeSet.call(this,key,value);
@@ -42,11 +47,12 @@ Storage.prototype.setItem=function(key,value){
   var parsed=parse(value);
   if(parsed)backup(parsed);else status(false);
  }
+ if(this===localStorage&&key===EXTRA)backupExtra(value);
 };
-window.addEventListener('pagehide',function(){var v=current();if(v)backup(v)});
-document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden'){var v=current();if(v)backup(v)}});
-window.addEventListener('beforeunload',function(){var v=current();if(v)backup(v)});
-setInterval(function(){var v=current();if(v&&Date.now()-lastSave>12000)backup(v)},15000);
+window.addEventListener('pagehide',function(){var v=current();if(v)backup(v);var x=currentExtra();if(x)backupExtra(JSON.stringify(x))});
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden'){var v=current();if(v)backup(v);var x=currentExtra();if(x)backupExtra(JSON.stringify(x))}});
+window.addEventListener('beforeunload',function(){var v=current();if(v)backup(v);var x=currentExtra();if(x)backupExtra(JSON.stringify(x))});
+setInterval(function(){var v=current();if(v&&Date.now()-lastSave>12000)backup(v);var x=currentExtra();if(x)backupExtra(JSON.stringify(x))},15000);
 function addBadge(){
  var stats=document.querySelector('header .stats');
  if(!stats||badge)return;
