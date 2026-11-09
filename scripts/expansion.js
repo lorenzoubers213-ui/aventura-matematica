@@ -12,7 +12,7 @@ function todayReset(){var d=day();if(state.daily.date!==d)state.daily={date:d,do
 function mainProgress(){var m=mainState();return {xp:Number(m.xp)||0,coins:Number(m.coins)||0,streak:Number(m.streak)||0,levels:Object.keys(m.completed||{}).length}}
 function award(xp,coins){state.xp+=xp;state.coins+=coins;state.total++;state.correct++;state.completed++;state.history.unshift({date:day(),xp:xp,coins:coins});state.history=state.history.slice(0,60);save();checkBadges()}
 function checkBadges(){var rules=[['primer-paso','🌟 Primer paso',1],['diez-aciertos','🎯 Diez aciertos',10],['cincuenta-aciertos','🏅 50 aciertos',50],['cien-aciertos','🏆 100 aciertos',100],['racha-cinco','🔥 Constancia',5],['academia-300','🚀 300 XP',300]];rules.forEach(function(r){var val=r[0]==='racha-cinco'?state.streak:r[0]==='academia-300'?state.xp:state.correct;if(val>=r[2]&&state.badges.indexOf(r[0])<0)state.badges.push(r[0])});save()}
-function markDaily(){todayReset();state.daily.done++;if(state.daily.done===5){state.xp+=30;state.coins+=10;if(state.badges.indexOf('mision-diaria')<0)state.badges.push('mision-diaria')}save()}
+function markDaily(){todayReset();var before=state.daily.done;state.daily.done=Math.min(5,before+1);if(before<5&&state.daily.done===5){state.xp+=30;state.coins+=10;if(state.badges.indexOf('mision-diaria')<0)state.badges.push('mision-diaria')}save()}
 function question(g,d){
  var a,b,ans,text,type;
  if(g<=2){var cap=g===1?Math.min(10,4+d*2):g===2?Math.min(20,8+d*3):Math.min(50,15+d*5);a=rnd(0,cap);b=rnd(0,cap);type=rnd(1,4);if(type===1||type===2){text=a+' + '+b+' = ?';ans=a+b}else{if(a<b){var t=a;a=b;b=t}text=a+' − '+b+' = ?';ans=a-b}}
